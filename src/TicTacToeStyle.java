@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Image;
 import javax.swing.Icon;
 
 public interface TicTacToeStyle {

@@ -1,16 +1,18 @@
 import java.util.ArrayList;
 
+import javax.swing.event.*;
+
 public class TicTacToeModel {
 
   private char[][] board = new char[3][3];
   private char playerMove;
   private boolean gameFinished;
   private char winner;
-  private WinPath winningPath;
   private ArrayList<MoveNode> moves;
+  private ArrayList<ChangeListener> listeners;
   
   public TicTacToeModel() {
-    this.startNewGame();
+	  listeners = new ArrayList<>();
   }
   
   
@@ -31,34 +33,23 @@ public class TicTacToeModel {
     
   }
   
-  public class WinPath {
-    private int beginRow;
-    private int beginCol;
-    private int endRow;
-    private int endCol;
-    
-    public int getBeginRow() {return beginRow;}
-    public int getBeginCol() {return beginCol;}
-    public int getEndRow() {return endRow;}
-    public int getEndCol() {return endCol;}
-    
-    
-    public void setWinPath(int br, int bc, int er, int ec) {
-      beginRow = br;
-      beginCol = bc;
-      endRow = er;
-      endCol = ec;
-      
-    }
+  
+  public void addChangeListener(ChangeListener listener) {
+	  listeners.add(listener);
   }
   
+  private void notifyChangeListeners() {
+	  ChangeEvent event = new ChangeEvent(this);
+	  for (ChangeListener listener: listeners) {
+		  listener.stateChanged(event);
+	  }
+  }
   
   public void startNewGame() {
     
     gameFinished = false;
     winner = ' ';
     playerMove = 'x';
-    winningPath = new WinPath();
     moves = new ArrayList<MoveNode>();
     
     for(int i = 0; i < board.length; i++) {
@@ -66,6 +57,7 @@ public class TicTacToeModel {
         board[i][j] = ' ';
       }
     }
+    notifyChangeListeners();
   }
   
   public boolean winCheck() {
@@ -87,7 +79,6 @@ public class TicTacToeModel {
         return false;
       }
     }
-    winningPath.setWinPath(row, 0, row, 2);
     return true;
   }
   
@@ -97,24 +88,17 @@ public class TicTacToeModel {
         return false;
       }
     }
-    winningPath.setWinPath(0, col, 2, col);
     return true;
   }
   
   private boolean checkDiagonal() {
     if(board[0][0] == board[2][2] && board[0][0] == board[1][1] && board[0][0] != ' ') {
-      winningPath.setWinPath(0, 0, 2, 2);
       return true;
     } else if (board[0][2] == board[2][0] && board[0][2] == board[1][1] && board[0][2] != ' ') {
-      winningPath.setWinPath(0, 2, 2, 0);
       return true;
     }
     return false;
   }
-  
-  public char getSquare(int row, int col) { return board[row][col]; }
-  
-  public WinPath getWinPath() {return winningPath; }
   
   public boolean getGameState() { return gameFinished; }
   
@@ -140,6 +124,8 @@ public class TicTacToeModel {
       
       print();
       System.out.println();
+      notifyChangeListeners();
+
     }
   }
   
@@ -151,20 +137,28 @@ public class TicTacToeModel {
     }
   }
   
-  public boolean undo() {
-    //TODO check if list is null
+  public boolean ableToUndo() {
+	   int endIndex = moves.size() - 1;
+	  if(moves.size() >= 3) {
+	      if(moves.get(endIndex).getPlayer() == moves.get(endIndex -1).getPlayer() && moves.get(endIndex -1).getPlayer()
+	          == moves.get(endIndex - 2).getPlayer()) {
+	        System.out.println("you cannot undo - 3 undos");
+	        return false;
+	      }
+	   }  
+	  return true;
+  }
+  
+  public void undo() {
     int endIndex = moves.size() - 1;
-    if(moves.size() >= 3) {
-      if(moves.get(endIndex).getPlayer() == moves.get(endIndex -1).getPlayer() && moves.get(endIndex -1).getPlayer()
-          == moves.get(endIndex - 2).getPlayer()) {
-        System.out.println("you cannot undo - 3 undos");
-        return true;
-      }
-    }
+    if (!ableToUndo())
+    {}
+    else {
     MoveNode temp = moves.get(endIndex);
     board[temp.getX()][temp.getY()] = ' ';
     changeTurn();
-    return false;
+    }
+    notifyChangeListeners();
   }
   
   public void print() {

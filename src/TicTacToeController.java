@@ -3,6 +3,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
+
 public class TicTacToeController {
 
   private TicTacToeView view;
@@ -15,6 +16,7 @@ public class TicTacToeController {
     this.view.addBoardSquareListener(new BoardSquareListener());
     this.view.addUndoListener(new UndoListener());
     this.view.addNewGameListener(new NewGameListener());
+
   }
   
   private class BoardSquareListener implements ActionListener {
@@ -33,10 +35,6 @@ public class TicTacToeController {
       if(model.boxFull(x, y)) return;
       
       model.addMove(x, y);
-      
-      model.winCheck();
-      
-      view.updateBoard(model.getBoard(), model.getWinner(), model.getPlayerMove(), false);
     }
     
   }
@@ -45,9 +43,7 @@ public class TicTacToeController {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      boolean undoFlag = model.undo();
-      view.updateBoard(model.getBoard(), model.getWinner(), model.getPlayerMove(), undoFlag);
-      
+      model.undo();
     }
     
   }
@@ -57,8 +53,6 @@ public class TicTacToeController {
     @Override
     public void actionPerformed(ActionEvent e) {
       model.startNewGame();
-      view.updateBoard(model.getBoard(), model.getWinner(), model.getPlayerMove(), false);
-      
     }
   }
 }

@@ -3,8 +3,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
-import java.awt.geom.Line2D;
 
 
 public class TicTacToeView{
@@ -16,10 +16,19 @@ public class TicTacToeView{
   private JLabel message;
   private JFrame boardView;
   private JLabel mPanel;
+  private TicTacToeModel model;
+  private JPanel buttonPanel;
   
-  public TicTacToeView() {
+  public TicTacToeView(TicTacToeModel m) {
+	model = m;
 	startMenu();
 	createBoard();
+	ChangeListener listenerx = new ChangeListener() {
+		public void stateChanged(ChangeEvent e) {
+			updateBoard(model.getBoard(), model.getWinner(), model.getPlayerMove(), !model.ableToUndo());		}
+	};
+	model.addChangeListener(listenerx);
+
   }
   
   private void startMenu() {
@@ -83,7 +92,7 @@ public class TicTacToeView{
 	    setBorder();
 	    undo = new JButton("Undo");
 	    newGame = new JButton("Start New Game");
-	    JPanel buttonPanel = new JPanel();
+	    buttonPanel = new JPanel();
 	    buttonPanel.add(undo);
 	    buttonPanel.add(newGame);
 	    message = new JLabel("Player 1's turn"); //wins, undo count
@@ -93,11 +102,13 @@ public class TicTacToeView{
 	    
 	   
 	    boardView.setVisible(false);
+	    
   }
   
   private void updateStyle() {
 	  setBorder();
 	  mPanel.setIcon(style.getBackgroundIcon(800, 800));
+	  
   }
   
   private void setBorder()
