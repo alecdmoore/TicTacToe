@@ -1,0 +1,224 @@
+﻿Final Report
+4.) 
+        
+Write the NAME of one of the controller classes (or class that contains a controller).
+Copy
+and paste a code segment of the controller that calls the mutator of the model.
+
+
+Controller Class: TicTacToeContoroller
+public class TicTacToeController {
+
+
+  private TicTacToeView view;
+  private TicTacToeModel model;
+  
+  public TicTacToeController(TicTacToeView v, TicTacToeModel m) {
+    view = v;
+    model = m;
+    
+    this.view.addBoardSquareListener(new BoardSquareListener());
+    this.view.addUndoListener(new UndoListener());
+    this.view.addNewGameListener(new NewGameListener());
+
+
+  }
+  
+  private class BoardSquareListener implements ActionListener {
+
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      // TODO Auto-generated method stub
+      int x,y;
+      
+      JButton temp = (JButton) e.getSource();
+      x = (int) temp.getClientProperty('x');  
+      y = (int) temp.getClientProperty('y');  
+      
+      if(model.getGameState()) return;
+      
+      if(model.boxFull(x, y)) return;
+      
+      model.addMove(x, y);
+    }
+    
+  }
+
+
+
+
+
+
+Write the NAME of the model class. Copy and paste a code segment of a mutator of
+the model that modifies data and also notifies view(s). Give me the name of mutator
+as well.
+
+
+
+
+Model Class: TicTacToeModel 
+
+
+Mutator Name: addMove
+
+
+public void addMove(int x, int y) {
+    if(!boxFull(x,y)) {
+      board[x][y] = playerMove;
+      moves.add(new MoveNode(x,y,playerMove));
+      changeTurn();
+      
+      if(winCheck()) {
+        gameFinished = true;
+        changeTurn();
+        winner = playerMove;
+        System.out.println("game won: winner " + winner);
+      }
+      
+      print();
+      System.out.println();
+      notifyChangeListeners();
+
+
+    }
+  }
+
+
+Write the NAME of the view class. Copy and paste a code the notification method of
+the view and show me how the notification method paints the view using the data
+from the model.
+
+
+
+
+View Class: TicTacToeView
+
+
+
+
+public void updateBoard(char[][] board, char winner, char playerMove, boolean undoFlag) {
+    for(int i = 0; i < boardSquares.length; i++) {
+      for(int j = 0; j < boardSquares[i].length; j++) {
+            JButton button =  boardSquares[i][j];        
+            char temp = board[i][j];
+        if (temp == 'x') {
+            button.setIcon(style.getXIcon(button.getWidth(), button.getHeight()));
+            
+        }
+        else if (temp == 'o') {
+                button.setIcon(style.getOIcon(button.getWidth(), button.getHeight()));
+                
+        }
+        else
+                button.setIcon(new ImageIcon());
+      }
+    }
+    if(playerMove == 'x') {
+      message.setText("Player 1's turn");
+    } else {
+      message.setText("Player 2's turn");
+    }
+    
+    if(undoFlag) {
+      message.setText("Can not undo thrice. Next PLayer's turn");
+    }
+    
+    if(winner != ' ') {
+      if(winner == 'x') {
+        message.setText("Player 1 Won");
+      } else {
+        message.setText("Player 2 Won");
+      }
+    }
+    
+  }
+
+
+
+
+Notification method 
+
+
+ChangeListener listenerx = new ChangeListener() {
+                public void stateChanged(ChangeEvent e) {
+                        updateBoard(model.getBoard(), model.getWinner(), model.getPlayerMove(), !model.ableToUndo());                }
+        };
+
+
+Icon has an internal repaint function that is called when the board is updated
+
+
+
+
+
+
+Write the NAME of a strategy and copy the code. :
+Strategy: TicTacToeStyle
+public interface TicTacToeStyle {
+        public Icon getXIcon(int x, int y);
+        
+        public Icon getOIcon(int x, int y);
+        
+        public Icon getBackgroundIcon(int x, int y);
+        
+        public Color getBorderColor();
+        
+}
+
+
+Write the name of two
+concrete strategies. (Just names required).
+SpaceStyle 
+OceanStyle
+
+
+
+
+Copy and paste the code segment where you create a concrete strategy and plug
+-
+in
+into the context program.
+
+
+
+
+private void startMenu() {
+          JFrame startMenu = new JFrame();
+          startMenu.setSize(500, 500);
+          startMenu.setTitle("Start Menu");
+          startMenu.setLayout(new FlowLayout());
+          startMenu.add(new JLabel("Pick a style!"));
+          JButton spaceButton = new JButton("Space");
+          spaceButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent arg0) {
+                        style = new SpaceStyle();
+                        updateStyle();
+                        startMenu.setVisible(false);
+                        boardView.setVisible(true);
+
+
+
+
+                }
+          });
+          JButton otherButton = new JButton("Ocean");
+          otherButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent arg0) {
+                        style = new OceanStyle();
+                        updateStyle();
+                        startMenu.setVisible(false);
+                        boardView.setVisible(true);
+                }
+          });
+          startMenu.add(spaceButton);
+          startMenu.add(otherButton);
+
+
+          startMenu.setVisible(true);
+  }
+
+
+
+
+5.) Topics taught in the class that were used for this project were, but not limited too, GUI programming, design patterns(MVC and Strategy), and actionListener/changeListeners. Topics that were studied upon for the project include layout manager implementation, scaling images, creating custom icons with specific properties.
